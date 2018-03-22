@@ -8,6 +8,7 @@ package ocr.core;
 import error.cvhandler.CvHandler;
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 
 /**
  *
@@ -16,6 +17,6 @@ import java.io.IOException;
 public class TestDriver {
     public static void main(String[] args) throws IOException, CvHandler{
         OcrCore ocr = new OcrCore();
-        System.out.println(ocr.process_image(new File("./images/nplates.jpg")));
+        System.out.println(Arrays.toString(ocr.process_image(new File("./images/very_clean.jpg"))));
     }
 }

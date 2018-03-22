@@ -5,7 +5,7 @@
  */
 package ocr.core;
 
-import java.awt.image.BufferedImage;
+import java.util.ArrayList;
 import org.bytedeco.javacpp.IntPointer;
 import org.bytedeco.javacpp.Loader;
 import static org.bytedeco.javacpp.helper.opencv_core.CV_RGB;
@@ -13,6 +13,7 @@ import org.bytedeco.javacpp.opencv_core;
 import static org.bytedeco.javacpp.opencv_core.CV_WHOLE_SEQ;
 import org.bytedeco.javacpp.opencv_core.CvMemStorage;
 import org.bytedeco.javacpp.opencv_core.CvPoint;
+import org.bytedeco.javacpp.opencv_core.CvRect;
 import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacpp.opencv_core.CvSlice;
 import org.bytedeco.javacpp.opencv_core.IplImage;
@@ -23,6 +24,7 @@ import static org.bytedeco.javacpp.opencv_core.cvCreateMemStorage;
 import static org.bytedeco.javacpp.opencv_core.cvCreateSeq;
 import static org.bytedeco.javacpp.opencv_core.cvCvtSeqToArray;
 import static org.bytedeco.javacpp.opencv_core.cvGetSeqElem;
+import static org.bytedeco.javacpp.opencv_core.cvGetSize;
 import static org.bytedeco.javacpp.opencv_core.cvPoint;
 import static org.bytedeco.javacpp.opencv_core.cvRect;
 import static org.bytedeco.javacpp.opencv_core.cvReleaseImage;
@@ -46,8 +48,6 @@ import static org.bytedeco.javacpp.opencv_imgproc.cvPolyLine;
 import static org.bytedeco.javacpp.opencv_imgproc.cvPyrDown;
 import static org.bytedeco.javacpp.opencv_imgproc.cvPyrUp;
 import static org.bytedeco.javacpp.opencv_imgproc.cvThreshold;
-import org.bytedeco.javacv.Java2DFrameConverter;
-import org.bytedeco.javacv.OpenCVFrameConverter;
 
 /**
  *
@@ -74,6 +74,12 @@ public class OcrShapes {
         
         return img_return;
     }
+    
+    public ArrayList<IplImage> get_images(IplImage img){
+        ArrayList<IplImage> arrImg = extract_images(img, find_squares(img));
+        return arrImg;
+    }
+    
     
     private double angle(opencv_core.CvPoint pt1, opencv_core.CvPoint pt2, opencv_core.CvPoint pt0) {
         double dx1 = pt1.x() - pt0.x();
@@ -208,7 +214,33 @@ public class OcrShapes {
              // draw the square as a closed polyline
              // Java translation: gotcha (re-)setting the opening "position" of the CvPoint sequence thing
              cvPolyLine(cpy, rect.position(0), count, 1, 1, CV_RGB(0,255,0), 3, CV_AA, 0);
+            
         }
         return cpy;
+    }
+    
+    //Extract "mini" images from squares
+    private ArrayList<IplImage> extract_images(IplImage img, CvSeq squares){
+        //source: https://gist.github.com/zudov/4967792
+        ArrayList<IplImage> arrImg = new ArrayList();
+        
+        CvSlice slice = new CvSlice(squares);
+        
+        for(int i=0; i < squares.total(); i +=4){
+            CvPoint rect = new CvPoint(4);
+            IntPointer count = new IntPointer(1).put(4);
+            // get the 4 corner slice from the "super"-slice
+            cvCvtSeqToArray(squares, rect, slice.start_index(i).end_index(i + 4));
+             
+            // Creating rectangle by which bounds image will be cropped
+            CvRect r = new CvRect(rect.position(0));
+            // After setting ROI (Region-Of-Interest) all processing will only be done on the ROI
+            cvSetImageROI(img, r);
+            IplImage cropped = cvCreateImage(cvGetSize(img), img.depth(), img.nChannels());
+            // Copy original image (only ROI) to the cropped image
+            cvCopy(img, cropped);
+            arrImg.add(cropped);
+        }
+        return arrImg;
     }
 }
