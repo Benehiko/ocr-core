@@ -1,37 +1,37 @@
-## Welcome to GitHub Pages
+## Welcome to OCR core
+The purpose of this repository is to create a fully functioning java OCR using javacv and tesseract to recognise number plates and extract the text from them.
 
-You can use the [editor on GitHub](https://github.com/Benehiko/ocr-core/edit/master/README.md) to maintain and preview the content for your website in Markdown files.
 
-Whenever you commit to this repository, GitHub Pages will run [Jekyll](https://jekyllrb.com/) to rebuild the pages in your site, from the content in your Markdown files.
+### The breakdown
+OCR core will be used to recognise and extract South African number plates. The software needs to work in harsh weather conditions and any time of day. Since South Africa has different kinds of number plates for different regions, provisions also need to be made for that. 
 
-### Markdown
+Currently there will be no need for a real-time system as extracting the number plate from a picture is the main concern.
 
-Markdown is a lightweight and easy-to-use syntax for styling your writing. It includes conventions for
+### Releases
+Compiled jar files will be released with an API for ease of use. Check the releases tab and the wiki for more information on this (soon).
 
-```markdown
-Syntax highlighted code block
+### Stages
 
-# Header 1
-## Header 2
-### Header 3
+#### Stage 1
+Get Tesseract to extract text from an image
 
-- Bulleted
-- List
+#### Stage 2
+Use javacv to improve the quality of the image so tesseract can be more accurate
 
-1. Numbered
-2. List
+#### Stage 3
+Use javacv to recognise shapes in the image for more focused text extraction
 
-**Bold** and _Italic_ and `Code` text
+#### Stage 4
+Implement realtime recognition
 
-[Link](url) and ![Image](src)
-```
+### Completed
 
-For more details see [GitHub Flavored Markdown](https://guides.github.com/features/mastering-markdown/).
+- Stage 1
+- Stage 2
 
-### Jekyll Themes
+### Version Control
 
-Your Pages site will use the layout and styles from the Jekyll theme you have selected in your [repository settings](https://github.com/Benehiko/ocr-core/settings). The name of this theme is saved in the Jekyll `_config.yml` configuration file.
+- Version 0 = Stage 1 - 2
+- Version 1 = Stage 3
+- Version 2 = Stage 4
 
-### Support or Contact
-
-Having trouble with Pages? Check out our [documentation](https://help.github.com/categories/github-pages-basics/) or [contact support](https://github.com/contact) and we’ll help you sort it out.
