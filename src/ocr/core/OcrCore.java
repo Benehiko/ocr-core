@@ -22,12 +22,17 @@ import javax.swing.JLabel;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
+import org.bytedeco.javacpp.helper.opencv_core.CvArr;
+import org.bytedeco.javacpp.opencv_core;
 import org.bytedeco.javacpp.opencv_core.CvSize;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacpp.opencv_core.Mat;
+import org.bytedeco.javacpp.opencv_core.Size;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
 import static org.bytedeco.javacpp.opencv_core.cvGetSize;
 import static org.bytedeco.javacpp.opencv_core.cvSize;
+import static org.bytedeco.javacpp.opencv_core.cvarrToMat;
 import org.bytedeco.javacpp.opencv_imgproc;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_INTER_LINEAR;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_RGB2GRAY;
@@ -50,138 +55,52 @@ public class OcrCore {
     public OcrCore(){
         img_src = null;
     }
-    
-    public String[] process_image(File f) throws IOException, CvHandler{
+    /*
+    *@param f java file type (image) should be given
+    */
+    public String process_image(File f) throws IOException, CvHandler{
         String extracted_text = "";
         String[] arrExtracted_text;
         
         try{
+            //get buffered image from file object f
             BufferedImage img_src = ImageIO.read(f);
-            //display_out(img_src);
-            ArrayList<BufferedImage> arrImg_src = batch_openCv(img_src);
+            
+            //Display source image
+            ImageDisplay.display(img_src);
+      
+            //Get opencv
+            
+            //Batch OpenCV is bugged and will not be used right now.
+            /*ArrayList<BufferedImage> arrImg_src = batch_openCv(img_src);
             
             arrExtracted_text = new String[arrImg_src.size()];
             for (int i=0; i < arrImg_src.size(); i++){
                 display_out(arrImg_src.get(i));
                 arrExtracted_text[i] = tesseract(arrImg_src.get(i));
             }
-                
-            extracted_text = tesseract(openCv(img_src));
+            */
+            BufferedImage temp_opencv = OcrPreProcessing.refine_image(img_src);
+            OcrShapes ocr_shapes = new OcrShapes();
+            IplImage temp_shaped = ocr_shapes.recognise_shapes(OcrConvert.convertBufferedToIpl(img_src));
+            ImageDisplay.display(OcrConvert.convertIplToBuffered(temp_shaped));
+            
+            extracted_text = Tess.extract(temp_opencv);
         }catch(IOException e){
             throw new CvHandler(e.getMessage());
         }
         
-        return arrExtracted_text;
+        return extracted_text;
     }
     
-    private ArrayList<BufferedImage> batch_openCv(BufferedImage i) throws CvHandler{
-        ArrayList<BufferedImage> arrImages = new ArrayList();
-        
-        //get opencv iplimage
-        IplImage img_src = convertBi_ipl(i);
-        
-        //get rectangles
-        OcrShapes ocrShapes = new OcrShapes();
-        IplImage shaped_img = ocrShapes.recognise_shapes(img_src);
-        //get images from shapes
-        ArrayList<IplImage> arrExtractedImg = ocrShapes.get_images(img_src);
-        for (IplImage img_extract : arrExtractedImg){
-            //display_out(convertIpl_bi(img_extract));
-            if (img_extract != null) {
-                     
-            //Convert Source image to Gray image
-            IplImage img_gray = cvCreateImage(cvGetSize(img_extract), IPL_DEPTH_8U, 1);
-            cvCvtColor(img_extract, img_gray, CV_RGB2GRAY);
-                        
-            //Convert Gray image to Black and White
-            IplImage img_bw = cvCreateImage(cvGetSize(img_gray),IPL_DEPTH_8U,1);
-            cvThreshold(img_gray, img_bw, 128, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
-            
-            //Resize image
-            //Source: https://stackoverflow.com/questions/15839316/cvresize-function-with-javacv
-            CvSize img_size = cvSize(img_bw.width()*2, img_bw.height()*2);
-            IplImage resizeImage = IplImage.create(img_size.width()*2,img_size.height()*2,img_bw.depth(),img_bw.nChannels());
-            cvResize(img_bw, resizeImage);
-            
-            //Return Image for Tesseract
-            arrImages.add(convertIpl_bi(resizeImage));
-              
-        }else throw new CvHandler("File does");
-        }
-        return arrImages;
-    }
-    
-    private BufferedImage openCv(BufferedImage i) throws CvHandler{
-        BufferedImage img_result = null;
-        
-        //get opencv iplimage
-        IplImage img_src = convertBi_ipl(i);
-        
-        //IplImage img_src = IplImage.create(i.getWidth(),i.getHeight(),IPL_DEPTH_8U,1);
-        if (img_src != null) {
-                     
-            //Convert Source image to Gray image
-            IplImage img_gray = cvCreateImage(cvGetSize(img_src), IPL_DEPTH_8U, 1);
-            cvCvtColor(img_src, img_gray, CV_RGB2GRAY);
-                        
-            //Convert Gray image to Black and White
-            IplImage img_bw = cvCreateImage(cvGetSize(img_gray),IPL_DEPTH_8U,1);
-            cvThreshold(img_gray, img_bw, 128, 255, CV_THRESH_BINARY | CV_THRESH_OTSU);
-            
-            //Return Image for Tesseract
-            img_result = convertIpl_bi(img_bw);
-              
-        }else throw new CvHandler("File does");
-        
-        return img_result;
-    }
-    
-    //covert bufferedimage to opencv iplimage
-    private IplImage convertBi_ipl(BufferedImage bi){
-        IplImage temp_img = null;
-        
-        //Convert BufferedImage to IplImage
-        //Source: https://stackoverflow.com/questions/8368078/java-bufferedimage-to-iplimage
-        ToIplImage iplConverter = new OpenCVFrameConverter.ToIplImage();
-        Java2DFrameConverter java2dConverter = new Java2DFrameConverter();
-        temp_img = iplConverter.convert(java2dConverter.convert(bi));
-        
-        
-        return temp_img;
+    public String process_image(BufferedImage bi) throws CvHandler{
+        BufferedImage refined_image = OcrPreProcessing.refine_image(bi);
+        ImageDisplay.display(refined_image);
+        String extracted_text = Tess.extract(refined_image);
+                
+        return extracted_text;
     } 
-            
-    //convert opencv iplimage to java bufferedimage
-    private BufferedImage convertIpl_bi(IplImage img){
-        //Source: https://stackoverflow.com/questions/31873704/javacv-how-to-convert-iplimage-tobufferedimage
-        OpenCVFrameConverter.ToIplImage grabberConverter = new OpenCVFrameConverter.ToIplImage();
-        Java2DFrameConverter paintConverter = new Java2DFrameConverter();
-        Frame frame = grabberConverter.convert(img);
-        BufferedImage img_result = paintConverter.getBufferedImage(frame,1);
-        
-        return img_result;
-    }
+  
     
-    private String tesseract(BufferedImage i) throws CvHandler{
-            //File imageFile = new File("./images/test_clean_copy.jpg");
-            ITesseract tess = new Tesseract();
-            tess.setDatapath("./tessdata/");
-            tess.setTessVariable("psm", "13");
-            String result = "";
-
-            try{
-                result = tess.doOCR(i);
-            }catch(TesseractException e){
-                throw new CvHandler(e.getMessage());
-            }
-            return result;
-    }
     
-    private void display_out(BufferedImage i){
-        //CreaetJFrame
-            JFrame jframe = new JFrame("Window");
-            jframe.setVisible(true);
-            jframe.add(new JLabel(new ImageIcon(i)));
-            jframe.pack();
-            jframe.setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-    }
 }

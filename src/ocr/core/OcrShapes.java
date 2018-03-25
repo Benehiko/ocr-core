@@ -18,6 +18,7 @@ import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacpp.opencv_core.CvSlice;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import static org.bytedeco.javacpp.opencv_core.cvCloneImage;
+import static org.bytedeco.javacpp.opencv_core.cvConvert;
 import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
 import static org.bytedeco.javacpp.opencv_core.cvCreateMemStorage;
@@ -74,9 +75,10 @@ public class OcrShapes {
         
         return img_return;
     }
-    
+            
     public ArrayList<IplImage> get_images(IplImage img){
-        ArrayList<IplImage> arrImg = extract_images(img, find_squares(img));
+        CvSeq squares = find_squares(img);
+        ArrayList<IplImage> arrImg = extract_images(img, squares);
         return arrImg;
     }
     
@@ -220,6 +222,7 @@ public class OcrShapes {
     }
     
     //Extract "mini" images from squares
+    //Issue 
     private ArrayList<IplImage> extract_images(IplImage img, CvSeq squares){
         //source: https://gist.github.com/zudov/4967792
         ArrayList<IplImage> arrImg = new ArrayList();
@@ -227,18 +230,25 @@ public class OcrShapes {
         CvSlice slice = new CvSlice(squares);
         
         for(int i=0; i < squares.total(); i +=4){
+            //Create a copy of image source
+            IplImage temp_img = cvCloneImage(img);
+            //IplImage temp_img = IplImage.create(img.width(),img.height(),img.depth(),img.nChannels());
             CvPoint rect = new CvPoint(4);
-            IntPointer count = new IntPointer(1).put(4);
+            //IntPointer count = new IntPointer(1).put(4);
             // get the 4 corner slice from the "super"-slice
             cvCvtSeqToArray(squares, rect, slice.start_index(i).end_index(i + 4));
              
             // Creating rectangle by which bounds image will be cropped
+            
             CvRect r = new CvRect(rect.position(0));
+          
+            
             // After setting ROI (Region-Of-Interest) all processing will only be done on the ROI
-            cvSetImageROI(img, r);
-            IplImage cropped = cvCreateImage(cvGetSize(img), img.depth(), img.nChannels());
+            cvSetImageROI(temp_img, r);
+            IplImage cropped = cvCloneImage(temp_img);
             // Copy original image (only ROI) to the cropped image
-            cvCopy(img, cropped);
+            cvConvert(temp_img, cropped);
+            //cvCopy(temp_img, cropped);
             arrImg.add(cropped);
         }
         return arrImg;
