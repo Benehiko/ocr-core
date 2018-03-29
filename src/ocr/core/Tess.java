@@ -20,7 +20,7 @@ public class Tess {
         //File imageFile = new File("./images/test_clean_copy.jpg");
         ITesseract tess = new net.sourceforge.tess4j.Tesseract();
         tess.setDatapath("./tessdata/");
-        //tess.setTessVariable("tessedit_create_hocr", "1");
+        tess.setTessVariable("tessedit_create_hocr", "1");
         tess.setTessVariable("tessedit_char_whitelist","0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         //tess.setTessVariable("tessedit_char_whitelist","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         String result = "";

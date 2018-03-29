@@ -5,13 +5,18 @@
  */
 package ocr.core;
 
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_16U;
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_64F;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import static org.bytedeco.javacpp.opencv_core.cvCloneImage;
+import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
 import static org.bytedeco.javacpp.opencv_core.cvGetSize;
-import org.bytedeco.javacpp.opencv_imgproc;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_RGB2GRAY;
+import static org.bytedeco.javacpp.opencv_imgproc.cvCanny;
 import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
+import static org.bytedeco.javacpp.opencv_imgproc.cvDilate;
 import static org.bytedeco.javacpp.opencv_imgproc.cvThreshold;
 
 /**
@@ -29,8 +34,8 @@ public interface ImageProcessing {
      * @return IplImage gray
      */
     public static IplImage grayscale(IplImage img_source){
-        //Convert Source image to Gray image
-        IplImage img_gray = cvCreateImage(cvGetSize(img_source), IPL_DEPTH_8U, 1);
+        IplImage img_gray = cvCreateImage(img_source.cvSize(), IPL_DEPTH_8U, 1);
+        //img_gray.dataOrder(img_source.dataOrder());
         cvCvtColor(img_source, img_gray, CV_RGB2GRAY);
         return img_gray;
     }
@@ -39,11 +44,10 @@ public interface ImageProcessing {
      * Convert to binary
      * Source: https://stackoverflow.com/questions/1585535/convert-rgb-to-black-white-in-opencv
      * @param img_gray Gray IplImage
+     * @param threshold
      * @return Black and White IplImage
      */
     public static IplImage binary(IplImage img_gray, int threshold){
-        
-        ImageDisplay.display(OcrConvert.convertIplToBuffered(img_gray));
         IplImage img_bw = cvCreateImage(cvGetSize(img_gray),img_gray.depth(),img_gray.nChannels());
         cvThreshold(img_gray, img_bw, 127, 255, threshold);
         return img_bw;
@@ -56,8 +60,31 @@ public interface ImageProcessing {
      * @return IplImage resultant
      */
     public static IplImage threshold(IplImage img_source, int threshold){
-        IplImage img_output = cvCreateImage(cvGetSize(img_source), IPL_DEPTH_8U,1);
+        IplImage img_output = cvCreateImage(img_source.cvSize(), IPL_DEPTH_8U, 1);
         cvThreshold(img_source, img_output, 127, 255, threshold);
         return img_output;
     }
+    
+    /**
+     * 
+     * @param img_source
+     * @param lowThreshold
+     * @param ratio
+     * @param kernal_size
+     * @return 
+     */
+    public static IplImage canny(IplImage img_source, int lowThreshold, int ratio, int kernal_size){
+        IplImage temp = IplImage.create(img_source.cvSize(), IPL_DEPTH_8U, 1);
+        //temp = cvCloneImage(img_source);
+        cvCanny(img_source, temp, lowThreshold, lowThreshold*ratio, kernal_size);
+        return temp;
+    }
+    
+    public static IplImage dilate(IplImage img_source){
+        IplImage temp = IplImage.create(img_source.cvSize(), IPL_DEPTH_8U, 1);
+        //cvCloneImage(img_source);
+        cvDilate(temp, temp, null, 1);
+        return temp;
+    }
+    
 }
