@@ -35,3 +35,33 @@ Implement realtime recognition
 - Version 1 = Stage 3
 - Version 2 = Stage 4
 
+### Prerequisites 
+This sorftware makes use of a lot leptonica and tesseract c++ libraries, which should be installed.
+
+### Summary of Installation (Linux only)
+```
+sudo apt-get -y install g++ autoconf automake libtool autoconf-archive pkg-config libpng-dev libjpeg8-dev libtiff5-dev zlib1g-dev
+
+git clone https://github.com/DanBloomberg/leptonica.git
+cd leptonica/
+./autobuild
+./configure
+./make
+./make install
+cd ..
+
+git clone https://github.com/tesseract-ocr/tesseract.git tesseract-ocr
+
+cd tesseract-ocr
+    ./autogen.sh
+    ./configure
+    make
+    sudo make install
+    sudo ldconfig
+```
+
+### Leptonica
+https://github.com/DanBloomberg/leptonica
+
+### Tesseract
+https://github.com/tesseract-ocr/tesseract
