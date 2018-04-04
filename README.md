@@ -47,7 +47,7 @@ cd leptonica/
 ./autobuild
 ./configure
 make
-make install
+sudo make install
 cd ..
 
 git clone https://github.com/tesseract-ocr/tesseract.git tesseract-ocr
