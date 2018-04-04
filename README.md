@@ -46,8 +46,8 @@ git clone https://github.com/DanBloomberg/leptonica.git
 cd leptonica/
 ./autobuild
 ./configure
-./make
-./make install
+make
+make install
 cd ..
 
 git clone https://github.com/tesseract-ocr/tesseract.git tesseract-ocr
