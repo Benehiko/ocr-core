@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -5,12 +6,8 @@
  */
 package ocr.core;
 
-import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_16U;
-import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_64F;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
-import static org.bytedeco.javacpp.opencv_core.cvCloneImage;
-import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
 import static org.bytedeco.javacpp.opencv_core.cvGetSize;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_RGB2GRAY;

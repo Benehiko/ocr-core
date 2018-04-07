@@ -9,7 +9,6 @@ import error.cvhandler.CvHandler;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
 import javax.imageio.ImageIO;
 
@@ -19,6 +18,7 @@ import javax.imageio.ImageIO;
  */
 public class TestDriver {
     public static void main(String[] args) throws IOException, CvHandler{
+       
         OcrCore ocr = new OcrCore();
         BufferedImage img_source = ImageIO.read(new File("./images/low_res_test.png"));
         System.out.println(Arrays.toString(ocr.process_image_array(img_source)));
