@@ -6,6 +6,7 @@
  */
 package ocr.core;
 
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import org.bytedeco.javacpp.IntPointer;
@@ -256,6 +257,25 @@ public class OcrShapes {
             
         }
         return cpy;
+    }
+    
+    public Rectangle[] getRectArray(CvSeq seq){
+        Rectangle[] rect = new Rectangle[((int)seq.total()/4)+1];
+        
+        CvPoint points = new CvPoint(4);
+        CvSlice slice = new CvSlice(seq);
+        int counter = 0;
+        for(int i=0; i <= seq.total(); i +=4){
+            cvCvtSeqToArray(seq, points, slice.start_index(i).end_index(i + 4));
+            CvRect r = new CvRect(points.position(0));
+            rect[counter] = new Rectangle();
+            //rect[counter].setSize(r.width(), r.height());
+            rect[counter].setBounds(r.x(), r.y(),r.width()+r.x(), r.height()+r.y());
+            counter++;
+            
+        }
+        // Creating rectangle by which bounds image will be cropped
+        return rect;
     }
     
     //Find contours 

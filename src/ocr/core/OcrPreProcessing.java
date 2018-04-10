@@ -50,11 +50,10 @@ public class OcrPreProcessing implements ImageProcessing{
      * Refine image for shape detection
      * Source: https://stackoverflow.com/questions/6044119/opencv-cvfindcontours-how-do-i-separate-components-of-a-contour
      * Source: https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
-     * @param bi BufferedImage
+     * @param img_ipl
      * @return 
      */
-    public static IplImage refine_shape_finder(BufferedImage bi){
-        IplImage img_ipl = OcrConvert.convertBufferedToIpl(bi);
+    public static IplImage refine_shape_finder(IplImage img_ipl){
         
         IplImage img_gray = ImageProcessing.grayscale(img_ipl);
         IplImage img_canny = ImageProcessing.canny(img_gray,1,3,5);
