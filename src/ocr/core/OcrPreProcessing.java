@@ -7,27 +7,9 @@ package ocr.core;
 
 import error.cvhandler.CvHandler;
 import java.awt.image.BufferedImage;
-import java.util.ArrayList;
-import org.bytedeco.javacpp.opencv_core;
-import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
-import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
-import static org.bytedeco.javacpp.opencv_core.cvGetSize;
-import static org.bytedeco.javacpp.opencv_core.cvSize;
-import static org.bytedeco.javacpp.opencv_core.cvarrToMat;
-import org.bytedeco.javacpp.opencv_imgproc;
-import static org.bytedeco.javacpp.opencv_imgproc.ADAPTIVE_THRESH_GAUSSIAN_C;
-import static org.bytedeco.javacpp.opencv_imgproc.CV_RGB2GRAY;
-import static org.bytedeco.javacpp.opencv_imgproc.CV_THRESH_BINARY;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_THRESH_OTSU;
 import static org.bytedeco.javacpp.opencv_imgproc.THRESH_BINARY_INV;
-import static org.bytedeco.javacpp.opencv_imgproc.cvCanny;
-import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
-import static org.bytedeco.javacpp.opencv_imgproc.cvDilate;
-import static org.bytedeco.javacpp.opencv_imgproc.cvResize;
-import static org.bytedeco.javacpp.opencv_imgproc.cvThreshold;
-import static org.bytedeco.javacpp.opencv_imgproc.cvSmooth;
-import org.opencv.imgproc.Imgproc;
 
 /**
  *
@@ -68,11 +50,10 @@ public class OcrPreProcessing implements ImageProcessing{
      * Refine image for shape detection
      * Source: https://stackoverflow.com/questions/6044119/opencv-cvfindcontours-how-do-i-separate-components-of-a-contour
      * Source: https://docs.opencv.org/2.4/doc/tutorials/imgproc/imgtrans/canny_detector/canny_detector.html
-     * @param bi BufferedImage
+     * @param img_ipl
      * @return 
      */
-    public static IplImage refine_shape_finder(BufferedImage bi){
-        IplImage img_ipl = OcrConvert.convertBufferedToIpl(bi);
+    public static IplImage refine_shape_finder(IplImage img_ipl){
         
         IplImage img_gray = ImageProcessing.grayscale(img_ipl);
         IplImage img_canny = ImageProcessing.canny(img_gray,1,3,5);
