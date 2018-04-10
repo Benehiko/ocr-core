@@ -7,6 +7,7 @@ package ocr.core;
 
 import java.awt.image.BufferedImage;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+//import org.bytedeco.javacpp.opencv_core.IplImage;
 import org.bytedeco.javacv.Frame;
 import org.bytedeco.javacv.Java2DFrameConverter;
 import org.bytedeco.javacv.OpenCVFrameConverter;

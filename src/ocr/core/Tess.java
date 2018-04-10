@@ -6,8 +6,18 @@
 package ocr.core;
 
 import error.cvhandler.CvHandler;
+import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.nio.channels.Channels;
+import java.nio.channels.ReadableByteChannel;
+import net.sourceforge.tess4j.ITessAPI.TessOcrEngineMode;
 import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract;
 import net.sourceforge.tess4j.TesseractException;
 
 /**
@@ -15,17 +25,21 @@ import net.sourceforge.tess4j.TesseractException;
  * @author benehiko
  */
 public class Tess {
-    
-    public static String extract(BufferedImage bi) throws CvHandler{
-        //File imageFile = new File("./images/test_clean_copy.jpg");
-        ITesseract tess = new net.sourceforge.tess4j.Tesseract();
-        tess.setDatapath("./tessdata/");
-        tess.setTessVariable("tessedit_create_hocr", "1");
-        tess.setTessVariable("tessedit_char_whitelist","0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+        
+    public static String extract(BufferedImage bi, Rectangle r) throws CvHandler, IOException, TesseractException{
+        ITesseract tess = new Tesseract();
+        String tessPath = getTess();
+        tess.setPageSegMode(1);
+        tess.setLanguage("eng");
+        tess.setDatapath(tessPath);
+        tess.setOcrEngineMode(TessOcrEngineMode.OEM_DEFAULT);
+        tess.setTessVariable("load_system_dawg", "false");
+        tess.setTessVariable("load_freq_dawg", "false");
+        tess.setTessVariable("tessedit_create_hocr", "0");
+        tess.setTessVariable("tessedit_char_whitelist","ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
         //tess.setTessVariable("tessedit_char_whitelist","ABCDEFGHIJKLMNOPQRSTUVWXYZ");
         String result = "";
-<<<<<<< HEAD
-        if (!r.isEmpty()){
+        if (!r.getBounds().isEmpty()){
             try{
                 result = tess.doOCR(bi, r);
                 //result = tess.doOCR(bi,r);
@@ -63,14 +77,11 @@ public class Tess {
                 System.out.println(e.toString());
             }            
         }
-=======
-
->>>>>>> parent of 2561de9... Update Fix crash on large images
         try{
-            result = tess.doOCR(bi);
-        }catch(TesseractException e){
-            throw new CvHandler(e.getMessage());
+            f = new File(tessdata);
+        }catch (Exception e){
+                System.out.println(e.toString());
         }
-        return result;
+        return f.getAbsolutePath();
     }
 }

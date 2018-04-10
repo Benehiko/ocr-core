@@ -1,3 +1,4 @@
+
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -5,18 +6,15 @@
  */
 package ocr.core;
 
-import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_16U;
-import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_64F;
 import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
-import static org.bytedeco.javacpp.opencv_core.cvCloneImage;
-import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
 import static org.bytedeco.javacpp.opencv_core.cvGetSize;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_RGB2GRAY;
 import static org.bytedeco.javacpp.opencv_imgproc.cvCanny;
 import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
 import static org.bytedeco.javacpp.opencv_imgproc.cvDilate;
+import static org.bytedeco.javacpp.opencv_imgproc.cvResize;
 import static org.bytedeco.javacpp.opencv_imgproc.cvThreshold;
 
 /**
@@ -35,6 +33,7 @@ public interface ImageProcessing {
      */
     public static IplImage grayscale(IplImage img_source){
         IplImage img_gray = cvCreateImage(img_source.cvSize(), IPL_DEPTH_8U, 1);
+        //IplImage img_gray = cvCreateImage(img_source.cvSize(), IPL_DEPTH_8U, 1);
         //img_gray.dataOrder(img_source.dataOrder());
         cvCvtColor(img_source, img_gray, CV_RGB2GRAY);
         return img_gray;
@@ -87,4 +86,9 @@ public interface ImageProcessing {
         return temp;
     }
     
+    public static IplImage resize(IplImage img_source){
+        IplImage resized = IplImage.create(600, 480, img_source.depth(), img_source.nChannels());
+        cvResize(img_source,resized);
+        return resized;
+    }
 }
