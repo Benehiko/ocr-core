@@ -7,9 +7,27 @@ package ocr.core;
 
 import error.cvhandler.CvHandler;
 import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+import org.bytedeco.javacpp.opencv_core;
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
+import static org.bytedeco.javacpp.opencv_core.cvGetSize;
+import static org.bytedeco.javacpp.opencv_core.cvSize;
+import static org.bytedeco.javacpp.opencv_core.cvarrToMat;
+import org.bytedeco.javacpp.opencv_imgproc;
+import static org.bytedeco.javacpp.opencv_imgproc.ADAPTIVE_THRESH_GAUSSIAN_C;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_RGB2GRAY;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_THRESH_BINARY;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_THRESH_OTSU;
 import static org.bytedeco.javacpp.opencv_imgproc.THRESH_BINARY_INV;
+import static org.bytedeco.javacpp.opencv_imgproc.cvCanny;
+import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
+import static org.bytedeco.javacpp.opencv_imgproc.cvDilate;
+import static org.bytedeco.javacpp.opencv_imgproc.cvResize;
+import static org.bytedeco.javacpp.opencv_imgproc.cvThreshold;
+import static org.bytedeco.javacpp.opencv_imgproc.cvSmooth;
+import org.opencv.imgproc.Imgproc;
 
 /**
  *

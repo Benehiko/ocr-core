@@ -1,4 +1,3 @@
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -6,7 +5,6 @@
  */
 package ocr.core;
 
-import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import org.bytedeco.javacpp.IntPointer;
@@ -19,8 +17,10 @@ import org.bytedeco.javacpp.opencv_core.CvPoint;
 import org.bytedeco.javacpp.opencv_core.CvRect;
 import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacpp.opencv_core.CvSlice;
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import static org.bytedeco.javacpp.opencv_core.cvCloneImage;
+import static org.bytedeco.javacpp.opencv_core.cvConvert;
 import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
 import static org.bytedeco.javacpp.opencv_core.cvCreateMemStorage;
@@ -34,6 +34,7 @@ import static org.bytedeco.javacpp.opencv_core.cvSeqPush;
 import static org.bytedeco.javacpp.opencv_core.cvSetImageCOI;
 import static org.bytedeco.javacpp.opencv_core.cvSetImageROI;
 import static org.bytedeco.javacpp.opencv_core.cvSize;
+import org.bytedeco.javacpp.opencv_imgproc;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_CHAIN_APPROX_SIMPLE;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_POLY_APPROX_DP;
@@ -50,6 +51,8 @@ import static org.bytedeco.javacpp.opencv_imgproc.cvPolyLine;
 import static org.bytedeco.javacpp.opencv_imgproc.cvPyrDown;
 import static org.bytedeco.javacpp.opencv_imgproc.cvPyrUp;
 import static org.bytedeco.javacpp.opencv_imgproc.cvThreshold;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 /**
  *
@@ -257,25 +260,6 @@ public class OcrShapes {
             
         }
         return cpy;
-    }
-    
-    public Rectangle[] getRectArray(CvSeq seq){
-        Rectangle[] rect = new Rectangle[((int)seq.total()/4)+1];
-        
-        CvPoint points = new CvPoint(4);
-        CvSlice slice = new CvSlice(seq);
-        int counter = 0;
-        for(int i=0; i <= seq.total(); i +=4){
-            cvCvtSeqToArray(seq, points, slice.start_index(i).end_index(i + 4));
-            CvRect r = new CvRect(points.position(0));
-            rect[counter] = new Rectangle();
-            //rect[counter].setSize(r.width(), r.height());
-            rect[counter].setBounds(r.x(), r.y(),r.width()+r.x(), r.height()+r.y());
-            counter++;
-            
-        }
-        // Creating rectangle by which bounds image will be cropped
-        return rect;
     }
     
     //Find contours 
