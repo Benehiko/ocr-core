@@ -1,4 +1,3 @@
-
 /*
  * To change this license header, choose License Headers in Project Properties.
  * To change this template file, choose Tools | Templates
@@ -18,8 +17,10 @@ import org.bytedeco.javacpp.opencv_core.CvPoint;
 import org.bytedeco.javacpp.opencv_core.CvRect;
 import org.bytedeco.javacpp.opencv_core.CvSeq;
 import org.bytedeco.javacpp.opencv_core.CvSlice;
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
 import static org.bytedeco.javacpp.opencv_core.cvCloneImage;
+import static org.bytedeco.javacpp.opencv_core.cvConvert;
 import static org.bytedeco.javacpp.opencv_core.cvCopy;
 import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
 import static org.bytedeco.javacpp.opencv_core.cvCreateMemStorage;
@@ -33,6 +34,7 @@ import static org.bytedeco.javacpp.opencv_core.cvSeqPush;
 import static org.bytedeco.javacpp.opencv_core.cvSetImageCOI;
 import static org.bytedeco.javacpp.opencv_core.cvSetImageROI;
 import static org.bytedeco.javacpp.opencv_core.cvSize;
+import org.bytedeco.javacpp.opencv_imgproc;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_AA;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_CHAIN_APPROX_SIMPLE;
 import static org.bytedeco.javacpp.opencv_imgproc.CV_POLY_APPROX_DP;
@@ -49,6 +51,8 @@ import static org.bytedeco.javacpp.opencv_imgproc.cvPolyLine;
 import static org.bytedeco.javacpp.opencv_imgproc.cvPyrDown;
 import static org.bytedeco.javacpp.opencv_imgproc.cvPyrUp;
 import static org.bytedeco.javacpp.opencv_imgproc.cvThreshold;
+import org.opencv.imgcodecs.Imgcodecs;
+import org.opencv.imgproc.Imgproc;
 
 /**
  *

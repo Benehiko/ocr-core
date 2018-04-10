@@ -16,17 +16,45 @@ import javax.imageio.ImageIO;
 
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import net.sourceforge.tess4j.ITesseract;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
+import org.bytedeco.javacpp.helper.opencv_core.CvArr;
+import org.bytedeco.javacpp.opencv_core;
+import org.bytedeco.javacpp.opencv_core.CvSize;
+import static org.bytedeco.javacpp.opencv_core.IPL_DEPTH_8U;
 import org.bytedeco.javacpp.opencv_core.IplImage;
+import org.bytedeco.javacpp.opencv_core.Mat;
+import org.bytedeco.javacpp.opencv_core.Size;
+import static org.bytedeco.javacpp.opencv_core.cvCreateImage;
+import static org.bytedeco.javacpp.opencv_core.cvGetSize;
+import static org.bytedeco.javacpp.opencv_core.cvSize;
+import static org.bytedeco.javacpp.opencv_core.cvarrToMat;
+import org.bytedeco.javacpp.opencv_imgproc;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_INTER_LINEAR;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_RGB2GRAY;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_THRESH_BINARY;
+import static org.bytedeco.javacpp.opencv_imgproc.CV_THRESH_OTSU;
+import static org.bytedeco.javacpp.opencv_imgproc.cvCvtColor;
+import static org.bytedeco.javacpp.opencv_imgproc.cvResize;
+import static org.bytedeco.javacpp.opencv_imgproc.cvThreshold;
+import org.bytedeco.javacv.Frame;
+import org.bytedeco.javacv.Java2DFrameConverter;
+import org.bytedeco.javacv.OpenCVFrameConverter;
+import org.bytedeco.javacv.OpenCVFrameConverter.ToIplImage;
+import org.opencv.imgproc.Imgproc;
 
 public class OcrCore {
   
+    private static String config_home = "./configuration/";
   
     private BufferedImage drawn_image;
     public OcrCore(){
         drawn_image = null;
-       
     }
-    
     /*
     *@param f java file type (image) should be given
     */
@@ -66,7 +94,7 @@ public class OcrCore {
         return extracted_text;
     }
     
-    public String process_image(BufferedImage bi) throws CvHandler, IOException{
+    public String process_image(BufferedImage bi) throws CvHandler{
         BufferedImage refined_image = OcrPreProcessing.refine_image(bi);
         //ImageDisplay.display(refined_image);
         String extracted_text = Tess.extract(refined_image);
@@ -74,26 +102,46 @@ public class OcrCore {
         return extracted_text;
     } 
     
-    public String[] process_image_array(BufferedImage bi) throws CvHandler, IOException{
+<<<<<<< HEAD
+    public String[] process_image_array(BufferedImage bi) throws CvHandler, IOException, TesseractException{
+=======
+    public String[] process_image_array(BufferedImage bi) throws CvHandler{
+>>>>>>> parent of 2561de9... Update Fix crash on large images
         //Get pre-processing shape
         IplImage shape_image = OcrPreProcessing.refine_shape_finder(bi);
         
         //Get slices
         OcrShapes ocr_shapes = new OcrShapes();
         IplImage original_image = OcrConvert.convertBufferedToIpl(bi);
+<<<<<<< HEAD
+        Rectangle[] rect = ocr_shapes.getRectArray(ocr_shapes.find_contours(shape_image));
+        //IplImage drawn_image = ocr_shapes.drawSquares(original_image, ocr_shapes.find_contours(shape_image));
+        //this.drawn_image = OcrConvert.convertIplToBuffered(drawn_image);
+=======
         IplImage drawn_image = ocr_shapes.drawSquares(original_image, ocr_shapes.find_contours(shape_image));
         this.drawn_image = OcrConvert.convertIplToBuffered(drawn_image);
+>>>>>>> parent of 2561de9... Update Fix crash on large images
         
         //Display the drawn image
-        //ImageDisplay.display(OcrConvert.convertIplToBuffered(drawn_image));
+        ImageDisplay.display(OcrConvert.convertIplToBuffered(drawn_image));
         ArrayList<BufferedImage> arrSlices = ocr_shapes.get_images(shape_image, original_image);
         
         //Process each slice for tesseract
+<<<<<<< HEAD
+        BufferedImage refined = OcrPreProcessing.refine_image(OcrConvert.convertIplToBuffered(original_image));
+        String[] extracted_text = new String[rect.length];
+        int counter = 0;
+        for (Rectangle r : rect){
+            //ImageDisplay.display(refined);
+            extracted_text[counter] = Tess.extract(refined, r);
+            counter++;
+=======
         String[] extracted_text = new String[arrSlices.size()];
         for (BufferedImage slice : arrSlices){
             BufferedImage refined = OcrPreProcessing.refine_image(slice);
-            //ImageDisplay.display(refined);
+            ImageDisplay.display(refined);
             extracted_text[arrSlices.indexOf(slice)] = Tess.extract(refined);
+>>>>>>> parent of 2561de9... Update Fix crash on large images
         }
     
         return extracted_text;
