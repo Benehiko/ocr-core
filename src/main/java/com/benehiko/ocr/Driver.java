@@ -22,7 +22,7 @@ import net.sourceforge.tess4j.TesseractException;
 public class Driver {
     
     public static void main(String[] args) throws FileNotFoundException, IOException, TesseractException{
-        File f = new File("./images/3.jpg");
+        File f = new File("./images/12.jpg");
         Ocr ocr = new Ocr();
         BufferedImage bi = Thumbnails.of(new FileInputStream(f)).scale(1).asBufferedImage();
         System.out.println(Arrays.toString(ocr.process(bi)));

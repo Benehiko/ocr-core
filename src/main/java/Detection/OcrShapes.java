@@ -35,17 +35,17 @@ public class OcrShapes {
 
     private Image img;
     private Rectangle[] rectangles;
-    
+
     public OcrShapes(Image img) {
         this.img = img;
     }
 
     /**
-     * 
+     *
      * @param img
      * @param startLoc
      * @param endLoc
-     * @return 
+     * @return
      */
     public Mat drawSquares(Mat img, Point startLoc, Point endLoc) {
         Mat imgtmp = img.clone();
@@ -55,45 +55,45 @@ public class OcrShapes {
     }
 
     /**
-     * 
+     *
      * @param img
      * @param r
-     * @return 
+     * @return
      */
     public Mat drawSquares(Mat img, Rectangle r) {
         this.img.setMat(img);
         return drawSquares(r);
     }
-    
+
     /**
-     * 
+     *
      * @param img
      * @param r
-     * @return 
+     * @return
      */
-    public Mat drawSquares(Mat img, Rectangle[] r){
+    public Mat drawSquares(Mat img, Rectangle[] r) {
         this.img.setMat(img);
         return this.drawSquares(r);
     }
-    
+
     /**
-     * 
+     *
      * @param r
-     * @return 
+     * @return
      */
-    public Mat drawSquares(Rectangle r){
+    public Mat drawSquares(Rectangle r) {
         Point startLoc = new Point(r.x, r.y);
         Point endLoc = new Point(r.x + r.width, r.y + r.height);
         return this.drawSquares(this.img.getMat().clone(), startLoc, endLoc);
     }
-    
+
     /**
-     * 
+     *
      * @param rec
-     * @return 
+     * @return
      */
-    public Mat drawSquares(Rectangle[] rec){
-        for (Rectangle r : rec){
+    public Mat drawSquares(Rectangle[] rec) {
+        for (Rectangle r : rec) {
             this.img.setMat(this.drawSquares(r));
         }
         return this.img.getMat();
@@ -117,6 +117,11 @@ public class OcrShapes {
         return r.toArray(new Rectangle[r.size()]);
     }
 
+    /**
+     * 
+     * @param contour
+     * @return 
+     */
     public Rectangle[] getRectArray(MatOfPoint contour) {
         ArrayList<Rectangle> r = new ArrayList<>();
 
@@ -128,8 +133,10 @@ public class OcrShapes {
                     Rect rectTmp = Imgproc.boundingRect(contour);
                     Rectangle jRect = new Rectangle(new java.awt.Point(rectTmp.x, rectTmp.y), new Dimension(rectTmp.width, rectTmp.height));
                     if (!recAlmostSame(r, jRect)) {
-                        r.add(jRect);
-                        System.out.println("Found a rectangle");
+                        if (recMarginPercentage(img.getWidth(), img.getHeight(), jRect) > 0.3) {
+                            r.add(jRect);
+                            System.out.println("Found a rectangle");
+                        }
                     }
 
                 }
@@ -139,6 +146,26 @@ public class OcrShapes {
         return r.toArray(new Rectangle[r.size()]);
     }
 
+    /**
+     *
+     * @param imgWidth
+     * @param imgHeight
+     * @param r
+     * @return
+     */
+    private double recMarginPercentage(int imgWidth, int imgHeight, Rectangle r) {
+        double recArea = r.width * r.height;
+        double picArea = imgHeight * imgWidth;
+        double percentage = (recArea * 100) / picArea;
+        return percentage;
+    }
+
+    /**
+     *
+     * @param r
+     * @param r2
+     * @return
+     */
     private boolean recAlmostSame(ArrayList<Rectangle> r, Rectangle r2) {
         for (int i = 0; i < r.size(); i++) {
             Rectangle r1 = r.get(i);
@@ -194,14 +221,14 @@ public class OcrShapes {
         this.img.setMat(input);
         return findContours();
     }
-    
-    public List<MatOfPoint> findContours() throws IOException{
+
+    public List<MatOfPoint> findContours() throws IOException {
         Mat tmp = this.img.getMat().clone();
         tmp = ImageProcess.toBinary(tmp);
         tmp = ImageProcess.denoise(tmp, 20f);
         tmp = ImageProcess.gaussianBlur(tmp);
         tmp = ImageProcess.toCanny(tmp);
-        
+
         new ImageDisplay("Inside Contour", ImageProcess.mat2BufferedImage(tmp)).display();
         Mat hierarchy = new Mat();
         List<MatOfPoint> contours = new ArrayList<>();
@@ -231,7 +258,7 @@ public class OcrShapes {
             p2 = new Point(val[2], val[3]);
 
         }
-        MatOfPoint mop = new MatOfPoint(p1,p2);
+        MatOfPoint mop = new MatOfPoint(p1, p2);
         return mop;
     }
 
