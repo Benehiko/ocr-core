@@ -10,9 +10,13 @@ import Detection.OcrShapes;
 import Display.ImageDisplay;
 import ImageBase.Image;
 import ImageProcessing.ImageProcess;
+import Standard.NumberPlate;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.ArrayList;
+import net.sourceforge.tess4j.TesseractException;
 import org.opencv.core.Core;
 import org.opencv.core.Mat;
 
@@ -22,10 +26,9 @@ import org.opencv.core.Mat;
  */
 public class Ocr {
 
-    public String[] process(BufferedImage bi) throws IOException {
+    public String[] process(BufferedImage bi) throws IOException, TesseractException {
         System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        String[] extractedText = null;
-        OcrShapes ocrShape = new OcrShapes();
+        OcrShapes ocrShape;
 
         /* Convert our image to a workable type */
         Image img = new Image(bi);
@@ -34,17 +37,33 @@ public class Ocr {
         ImageMatch im = new ImageMatch();
         //Rectangle[] template_rec = im.templateMatch(img.getMat());
 
-        Rectangle[] shape_rec = null;
+        ocrShape = new OcrShapes(img);
+        Rectangle[] shapePeucker = ocrShape.getRectArray(ocrShape.findContours());
+        img.setMat(ocrShape.drawSquares(shapePeucker));
+        new ImageDisplay("PeuckerTest", ImageProcess.mat2BufferedImage(img.getMat())).display();
         
-        shape_rec = ocrShape.getRectArray(ocrShape.findContours(img.getMat(), true));
-        System.out.println("How many rectangles are found:"+shape_rec.length);
-        for (Rectangle r : shape_rec) {
-            Mat tmp = ocrShape.drawSquares(img.getMat(), r);
-            new ImageDisplay("Test", ImageProcess.mat2BufferedImage(tmp)).display();
+        System.out.println("How many rectangles are found Peucker:" + shapePeucker.length);
+
+        ArrayList<String> extract = new ArrayList<>();
+        NumberPlate plate;
+        
+        for (Rectangle r : shapePeucker) {
+            ByteBuffer imgpeucker = ImageProcess.toByteBuffer(ImageProcess.mat2BufferedImage(ImageProcess.denoise(img.getMat(), 20)));
+            String tmp = Tess.TesseractHandler.extact(imgpeucker, img.getWidth(), img.getHeight(), r);
+            plate = new NumberPlate(tmp);
+            if (plate.isPlate())
+                extract.add(plate.getPlate());
+
         }
+        
+
+//        for (Rectangle r : shapeHough) {
+//            Mat tmp = ocrShape.drawSquares(img.getMat(), r);
+//            new ImageDisplay("HoughTest", ImageProcess.mat2BufferedImage(tmp)).display();
+//        }
 
         /* Send the Rectangles to Tesseract with ByteBuffer */
- /* Return the extracted Text */
-        return extractedText;
+        /* Return the extracted Text */
+        return extract.toArray(new String[extract.size()]);
     }
 }

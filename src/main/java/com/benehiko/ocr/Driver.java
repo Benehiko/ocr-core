@@ -11,7 +11,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Arrays;
 import net.coobird.thumbnailator.Thumbnails;
+import net.sourceforge.tess4j.TesseractException;
 
 /**
  *
@@ -19,10 +21,10 @@ import net.coobird.thumbnailator.Thumbnails;
  */
 public class Driver {
     
-    public static void main(String[] args) throws FileNotFoundException, IOException{
-        File f = new File("./images/personalised.jpg");
+    public static void main(String[] args) throws FileNotFoundException, IOException, TesseractException{
+        File f = new File("./images/3.jpg");
         Ocr ocr = new Ocr();
         BufferedImage bi = Thumbnails.of(new FileInputStream(f)).scale(1).asBufferedImage();
-        ocr.process(bi);
+        System.out.println(Arrays.toString(ocr.process(bi)));
     }
 }
