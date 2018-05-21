@@ -5,7 +5,7 @@
  */
 package SQLiteHandler;
 
-import ImageBase.ImageTemplate;
+import ImageBase.Template.ImageTemplate;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

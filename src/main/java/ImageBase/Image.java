@@ -5,7 +5,8 @@
  */
 package ImageBase;
 
-import ImageProcessing.ImageProcess;
+import ImageBase.Converter.ImageConvert;
+import OpenCVHandler.OpencvHandler;
 import java.awt.Rectangle;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -36,7 +37,7 @@ public final class Image extends CustomImage {
      */
     public void setBb(ByteBuffer bb) {
         if (bb == null) {
-            bb = ImageProcess.toByteBuffer(bi);
+            bb = ImageConvert.toByteBuffer(bi);
         }
         this.bb = bb;
     }
@@ -46,7 +47,7 @@ public final class Image extends CustomImage {
      */
     @Override
     public BufferedImage getBi() {
-        return bi;
+        return bi; 
     }
 
     /**
@@ -109,6 +110,19 @@ public final class Image extends CustomImage {
     @Override
     public void setMat(Mat mat) {
         this.matImg = mat;
+    }
+    
+    public void crop(Rectangle roi) throws IOException{
+        setMat(OpencvHandler.crop(matImg, roi.x, roi.y, roi.width, roi.height));
+        setBi(ImageConvert.mat2BufferedImage(matImg));
+    }
+    
+    public void updateBiUsingMat() throws IOException{
+        setBi(ImageConvert.mat2BufferedImage(matImg));
+    }
+    
+    public void updateMatUsingBi() throws IOException{
+        setMat(ImageConvert.bufferedImage2Mat(bi));
     }
 
 }

@@ -15,6 +15,7 @@ import java.net.URL;
 import java.nio.ByteBuffer;
 import java.nio.channels.Channels;
 import java.nio.channels.ReadableByteChannel;
+import java.util.List;
 import net.sourceforge.tess4j.ITessAPI;
 import net.sourceforge.tess4j.ITesseract;
 import net.sourceforge.tess4j.Tesseract;
@@ -25,16 +26,16 @@ import net.sourceforge.tess4j.TesseractException;
  * @author benehiko
  */
 public class TesseractHandler {
-    //source: http://tess4j.sourceforge.net/docs/docs-0.4/net/sourceforge/tess4j/Tesseract.html#doOCR(int,%20int,%20java.nio.ByteBuffer,%20java.awt.Rectangle,%20int)
 
-    private static Rectangle r;
-    private static ByteBuffer bb;
-    private static int width;
-    private static int height;
-    private static final int bbp = 24;
+    //source: http://tess4j.sourceforge.net/docs/docs-0.4/net/sourceforge/tess4j/Tesseract.html#doOCR(int,%20int,%20java.nio.ByteBuffer,%20java.awt.Rectangle,%20int)
+    private static final int BBP = 24;
     private static ITesseract tess;
 
-    private static void setEnvironment() throws IOException {
+    public TesseractHandler() throws IOException {
+        setEnvironment();
+    }
+
+    private void setEnvironment() throws IOException {
         //source: http://www.sk-spell.sk.cx/tesseract-ocr-parameters-in-302-version
         tess = new Tesseract();
         String tessPath = getTessDataPath();
@@ -55,7 +56,7 @@ public class TesseractHandler {
         tess.setPageSegMode(7);
         tess.setLanguage("eng");
         tess.setDatapath(tessPath);
-        tess.setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_DEFAULT);
+        tess.setOcrEngineMode(ITessAPI.TessOcrEngineMode.OEM_TESSERACT_LSTM_COMBINED);
 
         //Turn off dictionaries:
         tess.setTessVariable("load_system_dawg", "false");
@@ -66,30 +67,85 @@ public class TesseractHandler {
         tess.setTessVariable("load_bigram_dawg", "false");
         tess.setTessVariable("load_fixed_length_dawgs", "false");
 
-        //Image skewness
         //Text settings:
         tess.setTessVariable("tessedit_create_hocr", "0");
         tess.setTessVariable("tessedit_char_whitelist", "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789");
     }
 
-    public static String extact(ByteBuffer bb, int width, int height, Rectangle r) throws TesseractException, IOException {
-        if ((r.getBounds().isEmpty()) && (r.width < width) && (r.height < height)) {
-            return "";
-        }
-        setEnvironment();
-        return tess.doOCR(width, height, bb, r, bbp);
+    public String[] extract(List<BufferedImage> bi) {
+
+        String[] retStr = new String[bi.size()];
+
+        bi.forEach((bi1) -> {
+            try {
+                retStr[bi.indexOf(bi1)] = tess.doOCR(bi1);
+            } catch (TesseractException ex) {
+                System.out.println("Tesseract error\n"+ex.getMessage());
+            }
+        });
+        return retStr;
     }
 
-    public static String extract(BufferedImage bi, Rectangle r) throws IOException, TesseractException {
-        if ((r.getBounds().isEmpty()) && (r.width < bi.getWidth()) && (r.height < bi.getHeight())) {
-            return "";
-        }
+    /**
+     *
+     * @param bi
+     * @return
+     * @throws IOException
+     * @throws TesseractException
+     */
+    public String[] extract(BufferedImage[] bi) throws IOException, TesseractException {
+        String[] retStr = new String[bi.length];
 
-        setEnvironment();
+        int counter = 0;
+        for (BufferedImage tmp : bi) {
+            retStr[counter] = tess.doOCR(tmp);
+        }
+        return retStr;
+    }
+
+    /**
+     *
+     * @param bi
+     * @return
+     * @throws IOException
+     * @throws TesseractException
+     */
+    public String extract(BufferedImage bi) throws IOException, TesseractException {
+        return tess.doOCR(bi);
+    }
+
+    /**
+     *
+     * @param bb
+     * @param width
+     * @param height
+     * @param r
+     * @return
+     * @throws TesseractException
+     * @throws IOException
+     */
+    public String extact(ByteBuffer bb, int width, int height, Rectangle r) throws TesseractException, IOException {
+        return tess.doOCR(width, height, bb, r, BBP);
+    }
+
+    /**
+     *
+     * @param bi
+     * @param r
+     * @return
+     * @throws IOException
+     * @throws TesseractException
+     */
+    public String extract(BufferedImage bi, Rectangle r) throws IOException, TesseractException {
         return tess.doOCR(bi, r);
     }
 
-    private static String getTessDataPath() throws MalformedURLException, IOException {
+    /**
+     *
+     * @return @throws MalformedURLException
+     * @throws IOException
+     */
+    private String getTessDataPath() throws MalformedURLException, IOException {
         File f = null;
         //URL classPath = Tess.class.getResource("Tess.class");
 
