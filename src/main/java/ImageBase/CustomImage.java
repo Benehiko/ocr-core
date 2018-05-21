@@ -5,7 +5,7 @@
  */
 package ImageBase;
 
-import ImageProcessing.ImageProcess;
+import ImageBase.Converter.ImageConvert;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.nio.ByteBuffer;
@@ -30,8 +30,8 @@ public abstract class CustomImage {
         this.bi = bi;
         setWidth(bi.getWidth());
         setHeight(bi.getHeight());
-        setBB(ImageProcess.toByteBuffer(bi));
-        setMat(ImageProcess.bufferedImage2Mat(bi)); 
+        setBB(ImageConvert.toByteBuffer(bi));
+        setMat(ImageConvert.bufferedImage2Mat(bi)); 
         
     }
     
