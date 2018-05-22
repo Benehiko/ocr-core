@@ -7,10 +7,12 @@ A license plate reader that can be used in server side applications. This softwa
 `
 java -jar ocr.jar
 `
+
 Through ssh terminal use screen:
 `
 screen -d -m java -jar ocr.jar
 `
+
 ## How to build it
 `
 mvn clean install
