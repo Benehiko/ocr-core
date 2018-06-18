@@ -44,7 +44,7 @@ sudo apt-get -y install g++ autoconf automake libtool autoconf-archive pkg-confi
 
 git clone https://github.com/DanBloomberg/leptonica.git
 cd leptonica/
-./autobuild
+./autogen.sh
 ./configure
 make
 sudo make install
