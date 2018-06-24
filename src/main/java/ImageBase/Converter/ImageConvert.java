@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import net.coobird.thumbnailator.Thumbnails;
+//import net.coobird.thumbnailator.Thumbnails;
 import net.sourceforge.tess4j.util.ImageHelper;
 import org.opencv.core.Mat;
 import org.opencv.core.MatOfByte;
@@ -130,6 +131,21 @@ public class ImageConvert {
         return Imgcodecs.imdecode(new MatOfByte(byteArrayOutputStream.toByteArray()), Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
     }
 
+    /**
+     * 
+     * @param img
+     * @return 
+     */
+    public static Mat byte2Mat(byte[] img){
+        Mat mat = Imgcodecs.imdecode(new MatOfByte(img), Imgcodecs.CV_LOAD_IMAGE_UNCHANGED);
+        return mat;
+    }
+    
+    /**
+     * 
+     * @param img
+     * @return 
+     */
     public static BufferedImage deskew(BufferedImage img) {
 
         double imageSkewAngle = new ImageDeskew(img).getSkewAngle();
@@ -138,6 +154,11 @@ public class ImageConvert {
         return img;
     }
     
+    /**
+     * 
+     * @param img
+     * @return 
+     */
      public static boolean isSkew(BufferedImage img) {
         int MINIMUM_DESKEW_THRESHOLD = 1;
         double imageSkewAngle = new ImageDeskew(img).getSkewAngle();

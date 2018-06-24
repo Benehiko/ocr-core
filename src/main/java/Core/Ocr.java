@@ -9,19 +9,14 @@ import Core.ThreadProcess.OcrProcess;
 import ImageBase.Converter.ImageConvert;
 import NumberPlateStandard.NumberPlate;
 import Tess.TessThreader;
-import cz.adamh.utils.NativeUtils;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import javax.imageio.ImageIO;
-import org.opencv.core.Core;
 import org.opencv.core.Mat;
-import org.scijava.nativelib.NativeLoader;
 
 /**
  *
@@ -43,39 +38,22 @@ public class Ocr {
         this.output = new ArrayList<>();
         this.es = Executors.newCachedThreadPool();
     }
-
-    public Ocr(List<BufferedImage> bi) throws IOException {
+    
+    /**
+     * 
+     * @param imgbytes 
+     */
+    public Ocr(List<byte[]> imgbytes){
         this();
-        for (BufferedImage b : bi) {
-            byte[] imageInByte;
-            try (ByteArrayOutputStream baos = new ByteArrayOutputStream()) {
-                ImageIO.write(b, "jpg", baos);
-                baos.flush();
-                imageInByte = baos.toByteArray();
-            }
-            this.imgData.add(imageInByte);
+        for (byte[] img : imgbytes){
+            this.imgData.add(img);
         }
-        //init();
-
     }
 
-    public void init() throws IOException {
-        //System.loadLibrary(Core.NATIVE_LIBRARY_NAME);
-        //NativeUtils.loadLibraryFromJar(Core.NATIVE_LIBRARY_NAME);
-//        String osName = System.getProperty("os.name");
-//        File classpathRoot = new File(Main.class.getClassLoader().getResource("").getPath());
-//        System.out.println(classpathRoot);
-//        InputStream in = Main.class.getResourceAsStream(classpathRoot+"/"+Core.NATIVE_LIBRARY_NAME);
-//        File fileOut = File.createTempFile("openCvLib",".so");
-//        OutputStream out = FileUtils.openOutputStream(fileOut);
-//        IOUtils.copy(in, out);
-//        in.close();
-//        out.close();
-//        System.loadLibrary(fileOut.toString());
-      //  NativeUtils.loadLibraryFromJar(Core.NATIVE_LIBRARY_NAME);
-        
-    }
-
+    /**
+     * 
+     * @throws InterruptedException 
+     */
     public void start() throws InterruptedException {
         imgData.forEach((byte[] entry) -> {
             try {
@@ -89,6 +67,11 @@ public class Ocr {
 
     }
 
+    /**
+     * 
+     * @param p
+     * @param l 
+     */
     public void cvCallback(OcrProcess p, List l) {
         ocrObserver.remove(p);
         TessThreader t = null;
@@ -98,6 +81,13 @@ public class Ocr {
 
     }
 
+    /**
+     * 
+     * @param p
+     * @param r
+     * @param img
+     * @throws IOException 
+     */
     public void cvCallback(OcrProcess p, List<Rectangle> r, Mat img) throws IOException {
         ocrObserver.remove(p);
         TessThreader t = new TessThreader(this, ImageConvert.mat2BufferedImage(img), r);
@@ -106,6 +96,11 @@ public class Ocr {
         check();
     }
 
+    /**
+     * 
+     * @param t
+     * @param extract 
+     */
     public void tessCallback(TessThreader t, List<String> extract) {
         tessObserver.remove(t);
         NumberPlate plate = null;
@@ -117,20 +112,39 @@ public class Ocr {
                 }
             }
         }
+        if (!output.isEmpty()){
+            output.sort((s1,s2)-> Integer.compare(s1.length(),s2.length()));
+            System.out.println("Sorted: "+Arrays.toString(this.output.toArray()));
+            String tmp = output.get(output.size()-1);
+            output.clear();
+            output.add(tmp);
+        }
         check();
     }
 
+    /**
+     * Check if the observer is empty
+     */
     private void check() {
         if (this.ocrObserver.isEmpty() && this.tessObserver.isEmpty()) {
             this.canReturn = true;
         }
     }
 
+    /**
+     * 
+     * @return
+     * @throws InterruptedException 
+     */
     public List<String> getString() throws InterruptedException {
         return this.output;
 
     }
 
+    /**
+     * 
+     * @return 
+     */
     public boolean isFinished() {
         return this.canReturn;
     }

@@ -53,11 +53,13 @@ public class SocketListener extends Thread {
                 if (length > 0) {
                     bytes = new byte[length];
                     in.readFully(bytes, 0, bytes.length);
-                    InputStream stream = new ByteArrayInputStream(bytes);
-                    BufferedImage img = ImageIO.read(stream);
-                    List<BufferedImage> bi = new ArrayList<>();
-                    bi.add(img);
-                    Ocr ocr = new Ocr(bi);
+                    List<byte[]> byteList = new ArrayList<>();
+                    byteList.add(bytes);
+//                    InputStream stream = new ByteArrayInputStream(bytes);
+//                    BufferedImage img = ImageIO.read(stream);
+//                    List<BufferedImage> bi = new ArrayList<>();
+//                    bi.add(img);
+                    Ocr ocr = new Ocr(byteList);
                     ocr.start();
                     while (true) {
                         if (ocr.isFinished()) {

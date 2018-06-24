@@ -75,8 +75,11 @@ public class TessThreader extends Thread {
         TesseractHandler tess = new TesseractHandler();
         List<String> txt = new ArrayList<>();
         
-        for (Rectangle r : rect)
-            txt.add(tess.extract(b,r));
+        for (Rectangle r : rect){
+            String tmp = tess.extract(b, r);
+            if (!txt.contains(tmp))
+                txt.add(tess.extract(b,r));
+        }
         return txt;
     }
     

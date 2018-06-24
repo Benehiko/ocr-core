@@ -28,14 +28,14 @@ public final class NumberPlate {
             return false;
         
         /* Check if it is a number plate */
-        if ( plateLen > 3 && plateLen < 9){
+        if ( plateLen > 2 && plateLen < 10){
 
             /* Check if number plate is custom or not */
-            if (isAlphabet(plate.substring(1,3)) && isDigit(plate.substring(4, 6))){
-                isCustom = false;
-            }else{
-                isCustom = true;
-            }
+//            if (isAlphabet(plate.substring(1,3)) && isDigit(plate.substring(4, 6))){
+//                isCustom = false;
+//            }else{
+//                isCustom = true;
+//            }
             return true;
         }
             return false;
