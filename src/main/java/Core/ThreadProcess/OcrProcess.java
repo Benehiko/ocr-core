@@ -14,14 +14,10 @@ import OpenCVHandler.OpencvHandler;
 import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.opencv.core.Mat;
-import org.opencv.core.Size;
-import org.opencv.imgproc.Imgproc;
 
 /**
  *
@@ -50,28 +46,35 @@ public final class OcrProcess extends Thread {
         try {
             //Clone the original image to prevent it from being overwritten
             Mat img = m.clone();
-            
-            System.out.println("Original Image Resolution: "+m.cols()+"x"+m.rows());
-            
+
+            System.out.println("Original Image Resolution: " + m.cols() + "x" + m.rows());
+
             Dimension size = OpencvHandler.getAspectRatio(img, new Dimension(1920, 1080));
             img = OpencvHandler.resize(img, size.width, size.height);
-            System.out.println("New Image Resolution: "+img.cols()+"x"+img.rows());
-            
-            Mat imgBlur = OpencvHandler.gaussianBlur(img);
-            Mat imgGrey = OpencvHandler.toGrey(imgBlur);
-            Mat imgDenoise = OpencvHandler.denoise(imgGrey, 2f);
-            Mat imgBinary = OpencvHandler.toBinary(imgGrey);
-            
-            
+            System.out.println("New Image Resolution: " + img.cols() + "x" + img.rows());
+
+            Mat imgGrey = OpencvHandler.toGrey(img);
+            Mat equalise = OpencvHandler.equaHist(imgGrey);
+            Mat canny = OpencvHandler.toCanny(equalise, 100);
+            Mat bin = OpencvHandler.adaptiveBinnary(canny);
+
+            //Mat imgBlur = OpencvHandler.gaussianBlur(img);
+            Mat imgDenoise = OpencvHandler.denoise(equalise, 2f);
+            //Mat imgBinary = OpencvHandler.toBinary(imgGrey);
+
             //Get Shapes
-            ocrShape = new OpenCvShapeDetect(imgBinary);
+            ocrShape = new OpenCvShapeDetect(bin);
             shapes = ocrShape.getRectArray(ocrShape.findContours());
-            
-            System.out.println("Amount of Rectangles Found: "+shapes.length);
-            
+            Mat drawn = img;
+            if (shapes.length > 0) {
+                drawn = ocrShape.drawSquares(drawn, shapes, Colour.Green, 10);
+                new ImageDisplay("Drawn shapes", ImageConvert.mat2BufferedImage(drawn)).display();
+            }
+            System.out.println("Amount of Rectangles Found: " + shapes.length);
+
             //Resize Image back to original
             tessImg = imgDenoise;
-            
+
         } catch (IOException ex) {
             System.out.println("Could not do processing:\n" + ex.getMessage());
         }

@@ -16,6 +16,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import org.opencv.core.Mat;
 
 /**
@@ -115,7 +116,29 @@ public class Ocr {
         if (!output.isEmpty()){
             output.sort((s1,s2)-> Integer.compare(s1.length(),s2.length()));
             System.out.println("Sorted: "+Arrays.toString(this.output.toArray()));
+            
             String tmp = output.get(output.size()-1);
+            boolean flag = false;
+            
+            List<String> provinces = Arrays.asList(new NumberPlate().getProvinces());
+            //System.out.println(Arrays.toString(provinces));
+            for (int i=output.size()-1; i > 0; i--){
+                int length = output.get(i).length();
+                String s = output.get(i);
+                
+                for (String p : provinces){
+                    int pLen = p.length();
+                    String province = s.substring(length-pLen, length).toLowerCase();
+                    if (p.equals(province)){
+                        tmp = output.get(i);
+                        flag = true;
+                        break;
+                    }
+                }
+                if (flag)
+                    break;
+            }
+                    
             output.clear();
             output.add(tmp);
         }

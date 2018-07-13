@@ -20,6 +20,12 @@ public final class NumberPlate {
         this.plateLen = this.plate.length();
         System.out.println("Plate Length: "+plateLen);
     }
+
+    public NumberPlate() {
+        this.plate = "";
+        this.isCustom = false;
+        this.plateLen =0;
+    }
     
     public boolean isPlate(){
         /* Plate standards are quite variable, Since there is such variety we first need to test for "letters" only.*/
@@ -65,5 +71,10 @@ public final class NumberPlate {
     
     public String getPlate(){
         return this.plate;
+    }
+    
+    public String[] getProvinces(){
+        String[] provinces = {"gp", "mp", "l", "ca", "kzn"};
+        return provinces;
     }
 }

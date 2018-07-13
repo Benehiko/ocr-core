@@ -5,15 +5,13 @@
  */
 package OpenCVHandler;
 
-import com.recognition.software.jdeskew.ImageDeskew;
 import java.awt.Dimension;
 import java.awt.Rectangle;
-import java.awt.image.BufferedImage;
 import java.io.IOException;
-import net.sourceforge.tess4j.util.ImageHelper;
 import org.opencv.core.Mat;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
+import org.opencv.imgproc.CLAHE;
 import org.opencv.imgproc.Imgproc;
 import static org.opencv.imgproc.Imgproc.INTER_CUBIC;
 import org.opencv.photo.Photo;
@@ -24,6 +22,25 @@ import org.opencv.photo.Photo;
  */
 public final class OpencvHandler {
 
+    
+    public static Mat adaptiveBinnary(Mat img){
+        Mat bin = img.clone();
+        Imgproc.adaptiveThreshold(img, bin, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
+        return bin;
+    }
+    
+    /**
+     * 
+     * @param img
+     * @return 
+     */
+    public static Mat equaHist(Mat img){
+        Mat equalised = img.clone();
+        CLAHE clahe = Imgproc.createCLAHE(3.0, new Size(8, 8));
+        clahe.apply(img, equalised);
+        return equalised;
+    }
+    
     /**
      * Convert to gray
      *
@@ -40,12 +57,12 @@ public final class OpencvHandler {
      * Canny edges
      *
      * @param img
+     * @param lowThreshold
      * @return
      * @throws IOException
      */
-    public static Mat toCanny(Mat img) throws IOException {
+    public static Mat toCanny(Mat img, double lowThreshold) throws IOException {
         Mat imgCanny = img.clone();
-        double lowThreshold = 50;
         double highThreshold = lowThreshold * 3;
         Imgproc.Canny(img, imgCanny, lowThreshold, highThreshold);
         return imgCanny;
