@@ -66,10 +66,10 @@ public final class OcrProcess extends Thread {
             ocrShape = new OpenCvShapeDetect(bin);
             shapes = ocrShape.getRectArray(ocrShape.findContours());
             Mat drawn = img;
-            if (shapes.length > 0) {
-                drawn = ocrShape.drawSquares(drawn, shapes, Colour.Green, 10);
-                new ImageDisplay("Drawn shapes", ImageConvert.mat2BufferedImage(drawn)).display();
-            }
+//            if (shapes.length > 0) {
+//                drawn = ocrShape.drawSquares(drawn, shapes, Colour.Green, 10);
+//                new ImageDisplay("Drawn shapes", ImageConvert.mat2BufferedImage(drawn)).display();
+//            }
             System.out.println("Amount of Rectangles Found: " + shapes.length);
 
             //Resize Image back to original
