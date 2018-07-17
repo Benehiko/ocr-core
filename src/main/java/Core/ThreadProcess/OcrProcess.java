@@ -53,19 +53,24 @@ public final class OcrProcess extends Thread {
             img = OpencvHandler.resize(img, size.width, size.height);
             System.out.println("New Image Resolution: " + img.cols() + "x" + img.rows());
 
-            Mat imgGrey = OpencvHandler.toGrey(img);
-            Mat equalise = OpencvHandler.equaHist(imgGrey);
-            Mat canny = OpencvHandler.toCanny(equalise, 100);
-            Mat bin = OpencvHandler.adaptiveBinnary(canny);
+            Mat imgGray = OpencvHandler.toGray(img);
+            Mat equalise = OpencvHandler.equaHist(imgGray);
+            Mat morph = OpencvHandler.morph(equalise);
+            Mat otsuBin = OpencvHandler.otsuBinary(morph);
+            Mat dilate = OpencvHandler.dilate(otsuBin);
+            Mat thresh = OpencvHandler.adaptiveBinary(dilate);
+            
+//            Mat canny = OpencvHandler.toCanny(equalise, 100);
+//            Mat bin = OpencvHandler.adaptiveBinary(canny);
 
             //Mat imgBlur = OpencvHandler.gaussianBlur(img);
             Mat imgDenoise = OpencvHandler.denoise(equalise, 2f);
             //Mat imgBinary = OpencvHandler.toBinary(imgGrey);
 
             //Get Shapes
-            ocrShape = new OpenCvShapeDetect(bin);
+            ocrShape = new OpenCvShapeDetect(thresh);
             shapes = ocrShape.getRectArray(ocrShape.findContours());
-            Mat drawn = img;
+            //Mat drawn = img;
 //            if (shapes.length > 0) {
 //                drawn = ocrShape.drawSquares(drawn, shapes, Colour.Green, 10);
 //                new ImageDisplay("Drawn shapes", ImageConvert.mat2BufferedImage(drawn)).display();

@@ -122,13 +122,14 @@ public class Ocr {
             
             List<String> provinces = Arrays.asList(new NumberPlate().getProvinces());
             //System.out.println(Arrays.toString(provinces));
-            for (int i=output.size()-1; i > 0; i--){
+            for (int i=output.size()-1; i == 0; i--){
                 int length = output.get(i).length();
                 String s = output.get(i);
                 
                 for (String p : provinces){
                     int pLen = p.length();
                     String province = s.substring(length-pLen, length).toLowerCase();
+                    System.out.println("Possible province: "+province);
                     if (p.equals(province)){
                         tmp = output.get(i);
                         flag = true;

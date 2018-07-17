@@ -9,6 +9,7 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 import java.io.IOException;
 import org.opencv.core.Mat;
+import org.opencv.core.Point;
 import org.opencv.core.Rect;
 import org.opencv.core.Size;
 import org.opencv.imgproc.CLAHE;
@@ -23,9 +24,49 @@ import org.opencv.photo.Photo;
 public final class OpencvHandler {
 
     
-    public static Mat adaptiveBinnary(Mat img){
+    /**
+     * 
+     * @param img
+     * @return 
+     */
+    public static Mat morph(Mat img){
+        Mat morph = img.clone();
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+        Imgproc.morphologyEx(img, morph, Imgproc.MORPH_OPEN, kernel);
+        return morph;
+    }
+    
+    /**
+     * 
+     * @param img
+     * @return 
+     */
+    public static Mat dilate(Mat img){
+        Mat dilate = img.clone();
+        Mat kernel = Imgproc.getStructuringElement(1, new Size(5,5));
+        Imgproc.dilate(img, dilate, kernel, new Point(0,0), 1);
+        return dilate;
+    }
+    
+    /**
+     * 
+     * @param img
+     * @return 
+     */
+    public static Mat otsuBinary(Mat img){
+        Mat blur = gaussianBlur(img);
+        Mat thresh = img.clone();
+        Imgproc.threshold(blur, thresh, 240, 255, Imgproc.THRESH_BINARY + Imgproc.THRESH_OTSU);
+        return thresh;
+    }
+    /**
+     * 
+     * @param img
+     * @return 
+     */
+    public static Mat adaptiveBinary(Mat img){
         Mat bin = img.clone();
-        Imgproc.adaptiveThreshold(img, bin, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY, 11, 2);
+        Imgproc.adaptiveThreshold(img, bin, 255, Imgproc.ADAPTIVE_THRESH_GAUSSIAN_C, Imgproc.THRESH_BINARY_INV, 11, 2);
         return bin;
     }
     
@@ -36,7 +77,7 @@ public final class OpencvHandler {
      */
     public static Mat equaHist(Mat img){
         Mat equalised = img.clone();
-        CLAHE clahe = Imgproc.createCLAHE(3.0, new Size(8, 8));
+        CLAHE clahe = Imgproc.createCLAHE(3.0, new Size(15, 15));
         clahe.apply(img, equalised);
         return equalised;
     }
@@ -47,7 +88,7 @@ public final class OpencvHandler {
      * @param img
      * @return
      */
-    public static Mat toGrey(Mat img) {
+    public static Mat toGray(Mat img) {
         Mat imgGray = img.clone();
         Imgproc.cvtColor(img, imgGray, Imgproc.COLOR_BGR2GRAY);
         return imgGray;
@@ -93,8 +134,8 @@ public final class OpencvHandler {
      */
     public static Mat gaussianBlur(Mat img) {
         Mat imgBlur = img.clone();
-        Size kSize = new Size(3, 3);
-        Imgproc.GaussianBlur(img, imgBlur, kSize, 5);
+        Size kSize = new Size(5, 5);
+        Imgproc.GaussianBlur(img, imgBlur, kSize, 0);
         return imgBlur;
     }
 

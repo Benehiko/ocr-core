@@ -10,6 +10,7 @@ import Enum.Colour;
 import OpenCVHandler.OpencvHandler;
 import java.awt.Dimension;
 import java.awt.Rectangle;
+import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
@@ -141,34 +142,32 @@ public class OpenCvShapeDetect {
      */
     public Rectangle[] getRectArray(List<MatOfPoint> contours) {
         final List<Rect> r = new ArrayList<>();
+        List<MatOfPoint> contour_cache = new ArrayList<>();
 
         contours.forEach((contour) -> {
-            try {
-                Rect tmprec = this.getRectFromContour(contour);
-                if (tmprec != null) {
-                    //if (!recAlmostSame(r,tmprec))
-                    r.add(tmprec);
-                }
-            } catch (IOException ex) {
-                Logger.getLogger(OpenCvShapeDetect.class.getName()).log(Level.SEVERE, null, ex);
-            }
-            //r.addAll(Arrays.asList(tmprec));
-        });
 
-        //Remove duplicate boxes and intersect them
-        List<Rect> tmp = joinIntersects(r);
-        tmp.forEach((entry) -> {
-            double percentage = recMarginPercentage(entry);
+            MatOfPoint2f approx = getApprox(contour);
+            RotatedRect rect = getRotatedRect(approx);
 
-            if (!(percentage > 0.2 && percentage < 10)) {
-                tmp.remove(entry);
+            if (inScopePercentage(rect, approx)) {
+
+                contour_cache.add(contour);
             }
         });
-//        if (tmp == null) {
-//            tmp = new ArrayList<>();
-//        }
-        return rect2rectangle(r).toArray(new Rectangle[r.size()]);
-        //return r.toArray(new Rectangle[r.size()]);
+
+        contour_cache.removeIf(x -> polygontest(contour_cache, getRotatedRect(getApprox(x))));
+       
+        contour_cache.forEach((cnt)->{
+            MatOfPoint2f approx = getApprox(cnt);
+            RotatedRect rect = getRotatedRect(approx);
+            r.add(rect.boundingRect());
+        });
+
+        List<Rectangle> jrectanlges = rect2rectangle(r);
+        System.out.println("Length of original rectangles: "+ jrectanlges.size());
+        jrectanlges.removeIf(x-> rectangleInImage(x));
+        
+        return jrectanlges.toArray(new Rectangle[jrectanlges.size()]);
     }
 
     private List<Rectangle> rect2rectangle(List<Rect> rects) {
@@ -184,6 +183,12 @@ public class OpenCvShapeDetect {
         return jRects;
     }
 
+    private boolean rectangleInImage(Rectangle jrect){
+        double width = this.img.width();
+        double height = this.img.height();
+        return jrect.contains(width, height);
+    }
+    
     private List<Rect> joinIntersects(List<Rect> arrRect) {
         if (arrRect.isEmpty()) {
             return null;
@@ -283,68 +288,6 @@ public class OpenCvShapeDetect {
 
         }
         return null;
-
-//        boolean inters = false;
-//
-//        if (inters) {
-//            return new Rect(x, y, width, height);
-//        }
-//
-//        return null;
-//        Rectangle rect1 = new Rectangle(new java.awt.Point(img.x, img.y), new Dimension(img.width, img.height));
-//        Rectangle rect2 = new Rectangle(new java.awt.Point(bounding.x, bounding.y), new Dimension(bounding.width, bounding.height));
-//        Rectangle intersection = rect1.intersection(rect2);
-//        return new Rect(intersection.x, intersection.y, intersection.width, intersection.height);
-//        List<Point> img_points = new ArrayList<>();
-//
-//        img_points.add(new Point(img.x + img.width, img.y + img.height));
-//        img_points.add(new Point(img.x, img.y));
-//        img_points.add(new Point(img.x + img.width, img.y));
-//        img_points.add(new Point(img.x, img.y + img.height));
-//
-//        List<Point> bounding_points = new ArrayList<>();
-//
-//        bounding_points.add(new Point(bounding.x + bounding.width, bounding.y + bounding.height));
-//        bounding_points.add(new Point(bounding.x, bounding.y));
-//        bounding_points.add(new Point(bounding.x + bounding.width, bounding.y));
-//        bounding_points.add(new Point(bounding.x, bounding.y + bounding.height));
-//
-//        boolean flag = false;
-//
-//        for (Point p : img_points) {
-//            if (bounding.contains(p)) {
-//                flag = true;
-//                break;
-//            }
-//        }
-//
-//        if (!flag) {
-//            for (Point p : bounding_points) {
-//                if (img.contains(p)) {
-//                    flag = true;
-//                    break;
-//                }
-//            }
-//        }
-//
-//        if (((a & b) > 0)) {
-//            flag = true;
-//        }
-//
-//        if (!flag) {
-//            return null;
-//        }
-//
-//        int newX = Math.min(img.x, bounding.x);
-//        int newY = Math.min(img.y, bounding.y);
-//
-//        int newWidth = Math.max(img.x + img.width, bounding.x + bounding.width);
-//        int newHeight = Math.max(img.y + img.height, bounding.y + bounding.height);
-//        return new Rect(newX, newY, newWidth, newHeight);
-//        Rect rect = null;
-//        if (!(newWidth <= 0 || newHeight <= 0)) {
-//            
-//        }
     }
 
     /**
@@ -454,7 +397,7 @@ public class OpenCvShapeDetect {
      * @throws IOException
      */
     public MatOfPoint findHoughLines(Mat input) throws IOException {
-        Mat tmp = OpencvHandler.toGrey(input);
+        Mat tmp = OpencvHandler.toGray(input);
         tmp = OpencvHandler.toCanny(tmp, 50.0);
         int threshold = 70;
         int minLineSize = 30;
@@ -477,4 +420,72 @@ public class OpenCvShapeDetect {
         return mop;
     }
 
+    private MatOfPoint2f getApprox(MatOfPoint contour) {
+        MatOfPoint2f contour2f = new MatOfPoint2f();
+        //MatOfPoint approxContour = new MatOfPoint();
+        MatOfPoint2f approxcontour2f = new MatOfPoint2f();
+
+        contour.convertTo(contour2f, CvType.CV_32FC2);
+        double epsilon = 0.01 * Imgproc.arcLength(contour2f, false);
+        Imgproc.approxPolyDP(contour2f, approxcontour2f, epsilon, false);
+        return approxcontour2f;
+    }
+
+    private RotatedRect getRotatedRect(MatOfPoint2f approx) {
+        RotatedRect rotatedrect = Imgproc.minAreaRect(approx);//boundingRect(approxContour);
+
+        Point[] vertices = new Point[4];
+
+        rotatedrect.points(vertices);
+        MatOfPoint matPoint = new MatOfPoint(vertices);
+
+        // Imgproc.boxPoints(rotatedrect, points);
+        //rect = Imgproc.boundingRect(matPoint);
+        return rotatedrect;
+    }
+
+    private boolean inScopePercentage(RotatedRect rect, MatOfPoint2f approx) {
+        double img_area = this.img.width() * this.img.height();
+        double approx_area = Imgproc.contourArea(approx);
+
+        double angle = rect.angle;
+        double perc_area = (approx_area * 100) / img_area;
+        double perc_width = (rect.size.height * 100) / this.img.width();
+        double perc_height = (rect.size.width * 100) / this.img.height();
+
+        if ((perc_area > 0.15) && (perc_area <= 1) && (perc_height <= 30) && (perc_width <= 30)) {
+            if (((angle <= 0) && (angle >= -30)) || ((angle >= -150) && (angle >= -180)) || ((angle >= 0) && (angle <= 30)) || ((angle >= 150) && (angle <= 180))) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean polygontest(List<MatOfPoint> contours, RotatedRect rect) {
+        double height = rect.size.height;
+        double width = rect.size.width;
+
+        Point[] points = new Point[4];
+        rect.points(points);
+
+        for (MatOfPoint cnt : contours) {
+            int count = 0;
+            for (Point p : points) {
+                MatOfPoint2f contour2f = new MatOfPoint2f();
+                cnt.convertTo(contour2f, CvType.CV_32FC2);
+                if (Imgproc.pointPolygonTest(contour2f, p, false) > -1) {
+                    count++;
+                }
+            }
+            if (count == 4) {
+                double rect_area = width * height;
+                double cnt_area = Imgproc.contourArea(cnt);
+                if (cnt_area > rect_area) {
+                    return true;
+                }
+            }
+        }
+        return false;
+
+    }
 }

@@ -74,7 +74,7 @@ public final class NumberPlate {
     }
     
     public String[] getProvinces(){
-        String[] provinces = {"gp", "mp", "l", "ca", "kzn"};
+        String[] provinces = {"gp", "mp", "l", "ca", "kzn", "nw"};
         return provinces;
     }
 }
