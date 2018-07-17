@@ -39,21 +39,21 @@ public class Ocr {
         this.output = new ArrayList<>();
         this.es = Executors.newCachedThreadPool();
     }
-    
+
     /**
-     * 
-     * @param imgbytes 
+     *
+     * @param imgbytes
      */
-    public Ocr(List<byte[]> imgbytes){
+    public Ocr(List<byte[]> imgbytes) {
         this();
-        for (byte[] img : imgbytes){
+        for (byte[] img : imgbytes) {
             this.imgData.add(img);
         }
     }
 
     /**
-     * 
-     * @throws InterruptedException 
+     *
+     * @throws InterruptedException
      */
     public void start() throws InterruptedException {
         imgData.forEach((byte[] entry) -> {
@@ -69,9 +69,9 @@ public class Ocr {
     }
 
     /**
-     * 
+     *
      * @param p
-     * @param l 
+     * @param l
      */
     public void cvCallback(OcrProcess p, List l) {
         ocrObserver.remove(p);
@@ -83,11 +83,11 @@ public class Ocr {
     }
 
     /**
-     * 
+     *
      * @param p
      * @param r
      * @param img
-     * @throws IOException 
+     * @throws IOException
      */
     public void cvCallback(OcrProcess p, List<Rectangle> r, Mat img) throws IOException {
         ocrObserver.remove(p);
@@ -98,9 +98,9 @@ public class Ocr {
     }
 
     /**
-     * 
+     *
      * @param t
-     * @param extract 
+     * @param extract
      */
     public void tessCallback(TessThreader t, List<String> extract) {
         tessObserver.remove(t);
@@ -113,33 +113,10 @@ public class Ocr {
                 }
             }
         }
-        if (!output.isEmpty()){
-            output.sort((s1,s2)-> Integer.compare(s1.length(),s2.length()));
-            System.out.println("Sorted: "+Arrays.toString(this.output.toArray()));
-            
+        if (!output.isEmpty()) {
+            output.sort((s1, s2) -> Integer.compare(s1.length(), s2.length()));
+            System.out.println("Sorted: " + Arrays.toString(this.output.toArray()));
             String tmp = output.get(output.size()-1);
-            boolean flag = false;
-            
-            List<String> provinces = Arrays.asList(new NumberPlate().getProvinces());
-            //System.out.println(Arrays.toString(provinces));
-            for (int i=output.size()-1; i == 0; i--){
-                int length = output.get(i).length();
-                String s = output.get(i);
-                
-                for (String p : provinces){
-                    int pLen = p.length();
-                    String province = s.substring(length-pLen, length).toLowerCase();
-                    System.out.println("Possible province: "+province);
-                    if (p.equals(province)){
-                        tmp = output.get(i);
-                        flag = true;
-                        break;
-                    }
-                }
-                if (flag)
-                    break;
-            }
-                    
             output.clear();
             output.add(tmp);
         }
@@ -156,9 +133,8 @@ public class Ocr {
     }
 
     /**
-     * 
-     * @return
-     * @throws InterruptedException 
+     *
+     * @return @throws InterruptedException
      */
     public List<String> getString() throws InterruptedException {
         return this.output;
@@ -166,8 +142,8 @@ public class Ocr {
     }
 
     /**
-     * 
-     * @return 
+     *
+     * @return
      */
     public boolean isFinished() {
         return this.canReturn;

@@ -5,6 +5,10 @@
  */
 package NumberPlateStandard;
 
+import java.util.Arrays;
+import java.util.List;
+import java.util.Locale;
+
 /**
  *
  * @author benehiko
@@ -16,7 +20,7 @@ public final class NumberPlate {
     private boolean isCustom = false;
     
     public NumberPlate(String plate){
-        this.plate = sanitise(plate);
+        this.plate = sanitise(plate).toUpperCase(Locale.UK);
         this.plateLen = this.plate.length();
         System.out.println("Plate Length: "+plateLen);
     }
@@ -35,16 +39,23 @@ public final class NumberPlate {
         
         /* Check if it is a number plate */
         if ( plateLen > 2 && plateLen < 10){
+            String plate_province;
+            List<String> provinces = getProvinces();
+            for (String p : provinces){
+                int pLen = p.length();
+                if (p.equals("ca"))
+                    plate_province= plate.substring(1, pLen);
+                else
+                    plate_province = plate.substring(plateLen-pLen, plateLen);
+                
+                System.out.println("Possible province: "+plate_province);
+                 if (p.equalsIgnoreCase(plate_province) && !isDigit(plate_province)){
+                     return true;
+                 }
+            }
 
-            /* Check if number plate is custom or not */
-//            if (isAlphabet(plate.substring(1,3)) && isDigit(plate.substring(4, 6))){
-//                isCustom = false;
-//            }else{
-//                isCustom = true;
-//            }
-            return true;
         }
-            return false;
+        return false;
     }
     
     /**
@@ -73,8 +84,8 @@ public final class NumberPlate {
         return this.plate;
     }
     
-    public String[] getProvinces(){
-        String[] provinces = {"gp", "mp", "l", "ca", "kzn", "nw"};
-        return provinces;
+    public List<String> getProvinces(){
+        String[] provinces = {"gp", "mp", "l", "ca", "zn", "ec", "nw", "nc", "fs", "d", "g", "b", "m", "wp"};
+        return Arrays.asList(provinces);
     }
 }
