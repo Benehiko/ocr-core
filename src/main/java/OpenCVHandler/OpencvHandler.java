@@ -31,7 +31,8 @@ public final class OpencvHandler {
      */
     public static Mat morph(Mat img){
         Mat morph = img.clone();
-        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(5, 5));
+        int morph_size = 5;
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new Size(2*morph_size + 1, 2*morph_size+1));
         Imgproc.morphologyEx(img, morph, Imgproc.MORPH_OPEN, kernel);
         return morph;
     }
@@ -43,8 +44,9 @@ public final class OpencvHandler {
      */
     public static Mat dilate(Mat img){
         Mat dilate = img.clone();
-        Mat kernel = Imgproc.getStructuringElement(1, new Size(5,5));
-        Imgproc.dilate(img, dilate, kernel, new Point(0,0), 1);
+        int dilation_size = 5;
+        Mat kernel = Imgproc.getStructuringElement(Imgproc.MORPH_RECT, new  Size(2*dilation_size + 1, 2*dilation_size+1));
+        Imgproc.dilate(img, dilate, kernel);
         return dilate;
     }
     
@@ -77,7 +79,8 @@ public final class OpencvHandler {
      */
     public static Mat equaHist(Mat img){
         Mat equalised = img.clone();
-        CLAHE clahe = Imgproc.createCLAHE(3.0, new Size(15, 15));
+        
+        CLAHE clahe = Imgproc.createCLAHE(3.0, new Size(5, 5));
         clahe.apply(img, equalised);
         return equalised;
     }

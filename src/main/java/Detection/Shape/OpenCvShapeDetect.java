@@ -453,10 +453,10 @@ public class OpenCvShapeDetect {
         double perc_width = (rect.size.height * 100) / this.img.width();
         double perc_height = (rect.size.width * 100) / this.img.height();
 
-        if ((perc_area > 0.15) && (perc_area <= 1) && (perc_height <= 30) && (perc_width <= 30)) {
-            if (((angle <= 0) && (angle >= -30)) || ((angle >= -150) && (angle >= -180)) || ((angle >= 0) && (angle <= 30)) || ((angle >= 150) && (angle <= 180))) {
+        if ((perc_area > 0.15) && (perc_area <= 5) && (perc_height <= 30) && (perc_width <= 30)) {
+            //if (((angle <= 0) && (angle >= -30)) || ((angle <= -150) && (angle >= -180)) || ((angle >= 0) && (angle <= 30)) || ((angle >= 150) && (angle <= 180))) {
                 return true;
-            }
+            
         }
         return false;
     }
