@@ -23,4 +23,3 @@ mvn clean install
 - Gpu Opencv support
 - Caching
 - Data reporting
-
