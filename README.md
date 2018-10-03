@@ -21,3 +21,7 @@ Through ssh terminal use screen:
 ## How to build it
 
     mvn clean install
+
+## A full guide is available on this repository's Wiki
+
+https://github.com/Benehiko/ocr-core/wiki/Setting-up-the-Server
