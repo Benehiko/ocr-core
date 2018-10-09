@@ -30,7 +30,7 @@ Running it in the background use the screen package:
 
 ## A full guide is available on this repository's Wiki
 
-[Setting up the Server](https://github.com/Benehiko/ocr-core/wiki/Setting-up-the-Server)
+[Setting up the Server](https://github.com/Benehiko/ocr-core/wiki)
 
 
 ## Licensing
